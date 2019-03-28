@@ -1,6 +1,6 @@
 CC=arm-none-eabi-gcc
 CXX = arm-none-eabi-g++
-BUILD_PATH = build
+BUILD_PATH = ../../build
 dir_guard=mkdir -p $(@D)
 STATIC_OPENTHREAD_LIB = $(BUILD_PATH)/third_party/libopenthread.a
 AR = arm-none-eabi-gcc-ar -cr 
@@ -15,6 +15,9 @@ NRF_802154_MODULE_NAME = nrf_802154
 NRF_802154_MODULE_PATH ?= $(PROJECT_ROOT)/third_party/$(NRF_802154_MODULE_NAME)
 
 TARGET_NRF_802154_PATH = $(NRF_802154_MODULE_PATH)
+
+
+# INCLUDE_DIRS := $(shell find openthread -type d)
 
 INCLUDE_DIRS += openthread/include/
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/rsch/raal/softdevice 
@@ -46,13 +49,12 @@ INCLUDE_DIRS += ./openthread/third_party/NordicSemiconductor/libraries/app_error
 INCLUDE_DIRS += ./openthread/src/core
 INCLUDE_DIRS += ./openthread/third_party/NordicSemiconductor/cmsis
 INCLUDE_DIRS += ./openthread/third_party/NordicSemiconductor/softdevice/s140/headers
-CFLAGS += -DENABLE_DEBUG_LOG=0 -DENABLE_DEBUG_GPIO=0 -DENABLE_DEBUG_ASSERT=0  
+CFLAGS += -DENABLE_DEBUG_LOG=1 -DENABLE_DEBUG_GPIO=0 -DENABLE_DEBUG_ASSERT=0  
 CFLAGS += -DSTM32_DEVICE -DnRF52840 -DNRF52840_XXAA -DPLATFORM_THREADING=1 -DPLATFORM_ID=14 -DPLATFORM_NAME=xenon -DUSBD_VID_SPARK=0x2B04 -DUSBD_PID_DFU=0xD00E -DUSBD_PID_CDC=0xC00E -g3 -gdwarf-2 -Os -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DSOFTDEVICE_PRESENT=1 -DS140 -DINCLUDE_PLATFORM=1 -DOPENTHREAD_PROJECT_CORE_CONFIG_FILE=\"openthread-config-project.h\" -DENABLE_FEM=1 -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\" -DRAAL_SOFTDEVICE=1 -D_WIZCHIP_=W5500 -fno-builtin -DUSE_STDPERIPH_DRIVER -DDFU_BUILD_ENABLE -DLFS_CONFIG=lfs_config.h -DSYSTEM_VERSION_STRING=0.8.0-rc.27 -DRELEASE_BUILD 
 CFLAGS += -Iopenthread/third_party/NordicSemiconductor/nrfx/mdk/
-CFLAGS += -DENABLE_FEM=1
+CFLAGS += -DENABLE_FEM=1 -Werror
 CFLAGS += -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\"
 CFLAGS += -DRAAL_SOFTDEVICE=1
-CFLAGS += -DENABLE_DEBUG_LOG=1 -DENABLE_DEBUG_GPIO=0 -DENABLE_DEBUG_ASSERT=0
 CFLAGS += -DNRF52840_AAAA=0 -DNRF52840_AABA=0
 CFLAGS += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
 # ifeq ($(PLATFORM_OPENTHREAD),nrf52840)

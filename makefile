@@ -7,7 +7,11 @@ dir_guard=mkdir -p $(@D)
 
 SYSTEM_LB = _build/libs/libsystem.a
 
-HEX = ./_build/final.hex
+
+
+T_LOCATION = third_party/
+
+HEX = ./_build/mesh.hex
 
 SOURCES := $(wildcard src/*.cpp)
 MAIN    := $(wildcard *.cpp)
@@ -15,6 +19,8 @@ OBJECTS := $(SOURCES:.cpp=.o)
 MAIN_OBJECTS := $(MAIN:.cpp=.o)
 MAIN_OBJECTS := $(addprefix $(O_DIR)/,$(MAIN_OBJECTS))
 OBJECTS := $(addprefix $(O_DIR)/,$(OBJECTS))
+
+include lib.mk
 
 all: $(HEX)
 	
@@ -36,3 +42,5 @@ $(SYSTEM_LB):$(OBJECTS)
 clean:
 	@echo "CLEAN"
 	@rm -rf $(O_DIR)
+test:
+	# echo $(patsubst %,-I%,$(THIRD_PARTY)) -I.
