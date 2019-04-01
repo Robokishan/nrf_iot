@@ -51,7 +51,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/thread/utils/thread_utils.c \
   /home/oizom-dev/Documents/Sample/src/main.c
 
-CPP_FILES += ../../src/main.cpp 
+# CPP_FILES += ../../src/main.cpp 
 # Include folders common to all targets
 INCLUDE_DIRS += \
   $(SDK_ROOT)/components/drivers_nrf/usbd \

@@ -14,7 +14,8 @@ ABSOLUTE_PATHS ?= 0
 PASS_INCLUDE_PATHS_VIA_FILE ?= 0
 PASS_LINKER_INPUT_VIA_FILE  ?= 1
 
-include ready.mk
+# include ready.mk
+include blinky.mk
 
 # OPENTHREAD_MODULE_PATH=.
 # TARGET_OPENTHREAD_SRC_PATH = $(OPENTHREAD_MODULE_PATH)/openthread
@@ -50,7 +51,7 @@ $(eval CONTENT_TO_DUMP := $(1)) \
 endef
 export CONTENT_TO_DUMP
 
-MAIN_SRC = _build/Firmware.hex
+MAIN_SRC = $(BUILD_PATH)/bins/Firmware.hex
 
 
 # ALLOBJS := $(call get_object_files, nrf52, $(INCLUDE_DIRS), $(SRC_FILES) $(call target_specific, SRC_FILES, $(1))))
@@ -114,7 +115,7 @@ all:$(MAIN_SRC)
 	$(OBJCOPY) -O binary $< $@
 
 # Create binary .hex file from the .out file
-%.hex: %.out
+%.hex: %.out %.bin
 	@$(dir_guard)
 	$(info Preparing: $@)
 	$(OBJCOPY) -O ihex $< $@
@@ -142,7 +143,7 @@ $(OUTPUT_DIRECTORY)%.S.o: %.S
 	@echo "Assembling: $(notdir $<)"
 
 clean:
-	@rm -rf $(OUTPUT_DIRECTORY)
+	@rm -rf $(BUILD_PATH)
 	@echo "CLEAN"
 test:
 	$(info $(CPPFLAGS))
