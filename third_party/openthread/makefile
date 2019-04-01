@@ -5,162 +5,141 @@ BUILD_PATH = ../../build
 dir_guard=mkdir -p $(@D)
 STATIC_OPENTHREAD_LIB = $(BUILD_PATH)/third_party/libopenthread.a
 AR = arm-none-eabi-gcc-ar -cr 
+SIZE = arm-none-eabi-size
+OBJCOPY = arm-none-eabi-objcopy
 
+VERBOSE ?= 0
+PRETTY  ?= 0
+ABSOLUTE_PATHS ?= 0
+PASS_INCLUDE_PATHS_VIA_FILE ?= 0
+PASS_LINKER_INPUT_VIA_FILE  ?= 1
 
-
-include openthread.mk
-
+include ready.mk
 
 # OPENTHREAD_MODULE_PATH=.
 # TARGET_OPENTHREAD_SRC_PATH = $(OPENTHREAD_MODULE_PATH)/openthread
 TARGET_OPENTHREAD_SRC_PATH = openthread
 
 # CPPSRC += $(call target_files,$(TARGET_OPENTHREAD_SRC_PATH)/src/core/,*.cpp)
-SRC_FILES += $(call target_files,$(TARGET_OPENTHREAD_SRC_PATH)/src/core/,*.c)
 
-NRF_802154_MODULE_NAME = NordicSemiconductor
-NRF_802154_MODULE_PATH ?= $(PROJECT_ROOT)/third_party/$(NRF_802154_MODULE_NAME)
-
-TARGET_NRF_802154_PATH = $(NRF_802154_MODULE_PATH)
 
 OUTPUT_DIRECTORY = $(BUILD_PATH)/nrf52/
 
 
-# INCLUDE_DIRS := $(shell find openthread -type d)
-INCLUDE_DIRS += openthread/include/openthread
-INCLUDE_DIRS += openthread/include
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/rsch/raal/softdevice 
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/rsch/raal
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/hal
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/nrfx/mdk
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/nrfx
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/dependencies
-INCLUDE_DIRS += openthread/include/openthread
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/rsch
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/softdevice/s140/headers
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/softdevice/s140/headers
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/mac_features
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/fem
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/hal
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/mac_features
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/platform/clock
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/platform/temperature
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/platform/timer
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/raal
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/raal/softdevice
-INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src/timer_scheduler
-INCLUDE_DIRS += $(TARGET_OPENTHREAD_SRC_PATH)/examples/platforms
-INCLUDE_DIRS += $(TARGET_OPENTHREAD_SRC_PATH)/include/openthread
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/clock
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/nrfx/hal
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/nrfx/drivers/include
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/libraries/app_error
-INCLUDE_DIRS += openthread/src/core
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/cmsis
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/softdevice/s140/headers
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/softdevice/s140/headers/nrf52
-INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/nrfx/mdk
-INCLUDE_DIRS += openthread/src
-INCLUDE_DIRS += openthread/src/core/common
-INCLUDE_DIRS += openthread/src/core/utils
-INCLUDE_DIRS += openthread/third_party/mbedtls/repo/include
-INCLUDE_DIRS += openthread/third_party/mbedtls/repo/include/mbedtls
-
 # CFLAGS += -DENABLE_DEBUG_LOG=0 -DENABLE_DEBUG_GPIO=0 -DENABLE_DEBUG_ASSERT=0  
-CFLAGS += -DSTM32_DEVICE -DnRF52840 -DNRF52840_XXAA -DPLATFORM_THREADING=1 -DPLATFORM_ID=14-DPLATFORM_NAME=xenon -DUSBD_VID_SPARK=0x2B04 -DUSBD_PID_DFU=0xD00E -DUSBD_PID_CDC=0xC00E -g3 -gdwarf-2 -Os -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DSOFTDEVICE_PRESENT=1 -DS140 -DINCLUDE_PLATFORM=1 -DOPENTHREAD_PROJECT_CORE_CONFIG_FILE=\"openthread-config-project.h\" -DENABLE_FEM=1 -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\" -DRAAL_SOFTDEVICE=1 -D_WIZCHIP_=W5500 -fno-builtin -DUSE_STDPERIPH_DRIVER -DDFU_BUILD_ENABLE -DLFS_CONFIG=lfs_config.h -DSYSTEM_VERSION_STRING=0.8.0-rc.27 -DRELEASE_BUILD 
+# CFLAGS += -DSTM32_DEVICE -DnRF52840 -DNRF52840_XXAA -DPLATFORM_THREADING=1 -DPLATFORM_ID=14-DPLATFORM_NAME=xenon -DUSBD_VID_SPARK=0x2B04 -DUSBD_PID_DFU=0xD00E -DUSBD_PID_CDC=0xC00E -g3 -gdwarf-2 -Os -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DSOFTDEVICE_PRESENT=1 -DS140 -DINCLUDE_PLATFORM=1 -DOPENTHREAD_PROJECT_CORE_CONFIG_FILE=\"openthread-config-project.h\" -DENABLE_FEM=1 -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\" -DRAAL_SOFTDEVICE=1 -D_WIZCHIP_=W5500 -fno-builtin -DUSE_STDPERIPH_DRIVER -DDFU_BUILD_ENABLE -DLFS_CONFIG=lfs_config.h -DSYSTEM_VERSION_STRING=0.8.0-rc.27 -DRELEASE_BUILD 
 
-# CFLAGS += -DENABLE_FEM=1 -Werror
-CFLAGS += -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\"
-# CFLAGS += -DRAAL_SOFTDEVICE=1
-CFLAGS += -DNRF52840_AAAA=0 -DNRF52840_AABA=0
+# # CFLAGS += -DENABLE_FEM=1 -Werror
+# CFLAGS += -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\"
+# # CFLAGS += -DRAAL_SOFTDEVICE=1
+# CFLAGS += -DNRF52840_AAAA=0 -DNRF52840_AABA=0
 CFLAGS += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
-CFLAGS += $(patsubst %,-I%,$(C_DIRS)) 
-# CFLAGS += -Wundef
+# CFLAGS += $(patsubst %,-I%,$(C_DIRS)) 
+# # CFLAGS += -Wundef
 # CFLAGS += -ffunction-sections 
 # CFLAGS += -fdata-sections -Wall -Wno-switch 
 # CFLAGS += -Wno-error=deprecated-declarations 
 # CFLAGS += -fmessage-length=0 -fno-strict-aliasing 
-CFLAGS += --specs=nosys.specs
-CPPFLAGS += $(CFLAGS)
-CFLAGS += -std=gnu99
-CFLAGS += -std=gnu++11 
-
-# ifeq ($(PLATFORM_OPENTHREAD),nrf52840)
-
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_notification_swi.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_priority_drop_swi.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_request_swi.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_swi.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/rsch/raal/softdevice/nrf_raal_softdevice.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_ack_pending_bit.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_core.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_core_hooks.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_critical_section.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_debug.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_pib.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_revision.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/rsch/nrf_802154_rsch.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_rssi.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_rx_buffer.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_timer_coord.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/fem/nrf_fem_control.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/mac_features/nrf_802154_precise_ack_timeout.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/mac_features/nrf_802154_csma_ca.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/mac_features/nrf_802154_delayed_trx.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/mac_features/nrf_802154_filter.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/platform/clock/nrf_802154_clock_sdk.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/platform/hp_timer/nrf_802154_hp_timer.c
-SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/timer_scheduler/nrf_802154_timer_sched.c
-
-MAIN_SRC = /home/kishan/Softwares/nrf_iot/src/main.cpp
-
-define get_object_file_name
-$(OUTPUT_DIRECTORY)/$(strip $(1))/$(notdir $(2:%.c=%.o))
+# CFLAGS += --specs=nosys.specs
+# CPPFLAGS += $(CFLAGS)
+# CFLAGS += -std=gnu99
+# CFLAGS += -std=gnu++11 
+define dump
+$(eval CONTENT_TO_DUMP := $(1)) \
+"$(MAKE)" -s -f "dump.mk" VARIABLE=CONTENT_TO_DUMP
 endef
+export CONTENT_TO_DUMP
 
-# $1 target name
-# $2 include paths container file
-# $3 list of source files
-define get_object_files
-$(call ensure_exists_each,source file, $(3)) \
-$(foreach src_file, $(3), \
-  $(eval obj_file := $(call get_object_file_name, $(1), $(src_file))) \
-  $(eval DEPENDENCIES += $(obj_file:.o=.d)) \
-  $(call bind_obj_with_src, $(obj_file), $(src_file), $(2), $(1)) \
-  $(obj_file))
+MAIN_SRC = _build/Firmware.hex
 
-endef
 
 # ALLOBJS := $(call get_object_files, nrf52, $(INCLUDE_DIRS), $(SRC_FILES) $(call target_specific, SRC_FILES, $(1))))
-
-ALLOBJS = $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(SRC_FILES:.c=.o)))
-ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(CPP_FILES:.cpp=.cpp.o)))
+ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(S_FILES:.S=.S.o)))
+# ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(CPP_FILES:.cpp=.cpp.o)))
+ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(SRC_FILES:.c=.c.o)))
+# ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(CPP_FILES:.cpp=.cpp.o)))
 
 VPATH = $(sort $(dir $(SRC_FILES)))
-VPATH += $(sort $(dir $(CPP_FILES)))
-all:$(MAIN_SRC)
+# VPATH += $(sort $(dir $(CPP_FILES)))
 
-$(MAIN_SRC):$(STATIC_OPENTHREAD_LIB)
-	$(CXX) $(CFLAGS) -lopenthread -L/home/kishan/Softwares/nrf_iot/build/third_party/ $@
+ifeq ($(PASS_LINKER_INPUT_VIA_FILE),1)
+GENERATE_LD_INPUT_FILE = $(call dump, $^ $(LIB_FILES)) > $(@:.out=.in)
+LD_INPUT               = @$(@:.out=.in)
+else
+GENERATE_LD_INPUT_FILE =
+LD_INPUT               = $^ $(LIB_FILES)
+endif
+
+
+
+ifeq ($(PRETTY),1)
+		X     := @
+		EMPTY :=
+		SPACE := $(EMPTY) $(EMPTY)
+		TOTAL := $(subst $(SPACE),,$(filter $(X), \
+							 $(shell "$(MAKE)" $(MAKECMDGOALS) --dry-run \
+								 --no-print-directory PROGRESS=$(X))))
+
+		5   := $(X)$(X)$(X)$(X)$(X)
+		25  := $(5)$(5)$(5)$(5)$(5)
+		100 := $(25)$(25)$(25)$(25)
+
+		C       :=
+		COUNTER  = $(eval C := $(C)$(100))$(C)
+		P       :=
+		count    = $(if $(filter $1%,$2),$(eval \
+								 P += 1)$(call count,$1,$(2:$1%=%)),$(eval \
+								 C := $2))
+		print    = [$(if $(word 99,$1),99,$(if $(word 10,$1),, )$(words $1))%]
+		PROGRESS = $(call count,$(TOTAL),$(COUNTER))$(call print,$(P)) $1
+else
+		PROGRESS = $1
+endif # ifeq ($(PRETTY),1)
+
+all:$(MAIN_SRC)
+	@$(dir_guard)
+	@echo "Create: -> " $<
+
+%.out:$(ALLOBJS)
+	@$(dir_guard)
+	$(info $(call PROGRESS,Linking target: $@))
+	$(GENERATE_LD_INPUT_FILE)
+	$(info $(@:.out=.map))
+	$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.out=.map) -o $@
+	$(SIZE) $@
+
+%.bin: %.out
+	@$(dir_guard)
+	$(info Preparing: $@)
+	$(OBJCOPY) -O binary $< $@
+
+# Create binary .hex file from the .out file
+%.hex: %.out
+	@$(dir_guard)
+	$(info Preparing: $@)
+	$(OBJCOPY) -O ihex $< $@
 
 $(STATIC_OPENTHREAD_LIB):$(ALLOBJS)
-	@$(dir_guard)
-	@$(AR) $@ $<
-	@echo "Create: -> "$(notdir $@)
+	$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.out=.map) -o $@
+# 	@$(dir_guard)
+# 	@$(AR) $@ $<
+# 	@echo "Create: -> " $@
 # -lmbedcrypto -L/home/kishan/Softwares/nrf_iot/third_party/openthread/openthread/build/nrf52840/third_party/mbedtls/
-$(OUTPUT_DIRECTORY)%.o: %.c
+$(OUTPUT_DIRECTORY)%.c.o: %.c
 	@$(dir_guard)
-	@$(CC) $(CFLAGS) -std=gnu99 -c $< -o $@
+	@$(CC) $(CFLAGS) -MP -MD -std=gnu99 -c $< -o $@
 	@echo "Compiling: $(notdir $<)"
 
 
 $(OUTPUT_DIRECTORY)%.cpp.o: %.cpp
 	@$(dir_guard)
-	$(CC) $(CPPFLAGS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -MP -MD $(CFLAGS) -std=gnu++14  -c $< -o $@
 	@echo "Compiling: $(notdir $<)"
+
+$(OUTPUT_DIRECTORY)%.S.o: %.S
+	@$(dir_guard)
+	@$(CC) $(ASMFLAGS) -MP -MD -x assembler-with-cpp -std=gnu++14  -c $< -o $@
+	@echo "Assembling: $(notdir $<)"
 
 clean:
 	@rm -rf $(OUTPUT_DIRECTORY)
