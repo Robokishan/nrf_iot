@@ -8,15 +8,20 @@ AR = arm-none-eabi-gcc-ar -cr
 SIZE = arm-none-eabi-size
 OBJCOPY = arm-none-eabi-objcopy
 
+KEY_FILE = ../../keys/private.key
+FIRMWARE_ZIP = $(BUILD_PATH)/app_dfu_package.zip
+SOFT_ID = 0xAE
+
 VERBOSE ?= 0
 PRETTY  ?= 0
 ABSOLUTE_PATHS ?= 0
 PASS_INCLUDE_PATHS_VIA_FILE ?= 0
 PASS_LINKER_INPUT_VIA_FILE  ?= 1
 
+include app.mk
 # include ready.mk
 include blinky.mk
-
+include usb.mk
 # OPENTHREAD_MODULE_PATH=.
 # TARGET_OPENTHREAD_SRC_PATH = $(OPENTHREAD_MODULE_PATH)/openthread
 TARGET_OPENTHREAD_SRC_PATH = openthread
@@ -45,6 +50,14 @@ CFLAGS += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
 # CPPFLAGS += $(CFLAGS)
 # CFLAGS += -std=gnu99
 # CFLAGS += -std=gnu++11 
+
+check_defined = \
+    $(strip $(foreach 1,$1, \
+        $(call __check_defined,$1,$(strip $(value 2)),$(3))))
+__check_defined = \
+    $(if $(value $1),, \
+      $(error $(3) $1$(if $2, ($2))))
+
 define dump
 $(eval CONTENT_TO_DUMP := $(1)) \
 "$(MAKE)" -s -f "dump.mk" VARIABLE=CONTENT_TO_DUMP
@@ -52,7 +65,8 @@ endef
 export CONTENT_TO_DUMP
 
 MAIN_SRC = $(BUILD_PATH)/bins/Firmware.hex
-
+SDK_CONFIG_FILE := ../../config/sdk_config.h
+CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
 
 # ALLOBJS := $(call get_object_files, nrf52, $(INCLUDE_DIRS), $(SRC_FILES) $(call target_specific, SRC_FILES, $(1))))
 ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(S_FILES:.S=.S.o)))
@@ -103,11 +117,11 @@ all:$(MAIN_SRC)
 
 %.out:$(ALLOBJS)
 	@$(dir_guard)
-	$(info $(call PROGRESS,Linking target: $@))
-	$(GENERATE_LD_INPUT_FILE)
-	$(info $(@:.out=.map))
+	@$(info $(call PROGRESS,Linking target: $@))
+	@$(GENERATE_LD_INPUT_FILE)
+	@$(info $(@:.out=.map))
 	$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.out=.map) -o $@
-	$(SIZE) $@
+	@$(SIZE) $@
 
 %.bin: %.out
 	@$(dir_guard)
@@ -145,5 +159,20 @@ $(OUTPUT_DIRECTORY)%.S.o: %.S
 clean:
 	@rm -rf $(BUILD_PATH)
 	@echo "CLEAN"
-test:
-	$(info $(CPPFLAGS))
+
+sdk_config:
+	java -jar $(CMSIS_CONFIG_TOOL) $(SDK_CONFIG_FILE)
+
+flash:all
+	$(call check_defined, PORT,,Please sepeicify PORT value PORT=/dev/ttyACM0)
+	@echo "Encrypting Firmware"
+	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(MAIN_SRC)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)
+	@echo "Uploading.. $(PORT)"
+	@nrfutil dfu usb-serial -pkg $(FIRMWARE_ZIP) -p $(PORT)
+flash_app:
+	$(call check_defined, PORT,,Please sepeicify APP value APP=../../Firmware.hex)
+	$(call check_defined, PORT,,Please sepeicify PORT value PORT=/dev/ttyACM0)
+	@echo "Encrypting Firmware"
+	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(APP)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)
+	@echo "Uploading.. $(PORT)"
+	@nrfutil dfu usb-serial -pkg $(FIRMWARE_ZIP) -p $(PORT)

@@ -334,13 +334,13 @@ int main(void)
 
     while (true)
     {
-        while (app_usbd_event_queue_process())
-        {
-            /* Nothing to do */
-        }
+        // while (app_usbd_event_queue_process())
+        // {
+        //     /* Nothing to do */
+        // }
         
-        if(m_send_flag)
-        {
+        // if(m_send_flag)
+        // {
             static int  frame_counter;
 
             size_t size = sprintf(m_tx_buffer, "Hello USB CDC FA demo: %u\r\n", frame_counter);
@@ -350,7 +350,7 @@ int main(void)
             {
                 ++frame_counter;
             }
-        }
+        // }
         
         nrf_cli_process(&m_cli_uart);
 

@@ -1,0 +1,10 @@
+.vscode/*
+build/nrf52/*
+*.hex
+*.zip
+*.in
+*.map
+*.out
+*.o
+*.d
+*.bin
