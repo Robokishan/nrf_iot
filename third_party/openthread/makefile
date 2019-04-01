@@ -1,9 +1,16 @@
+SHELL = /bin/sh
 CC=arm-none-eabi-gcc
 CXX = arm-none-eabi-g++
 BUILD_PATH = ../../build
 dir_guard=mkdir -p $(@D)
 STATIC_OPENTHREAD_LIB = $(BUILD_PATH)/third_party/libopenthread.a
 AR = arm-none-eabi-gcc-ar -cr 
+
+
+
+include openthread.mk
+
+
 # OPENTHREAD_MODULE_PATH=.
 # TARGET_OPENTHREAD_SRC_PATH = $(OPENTHREAD_MODULE_PATH)/openthread
 TARGET_OPENTHREAD_SRC_PATH = openthread
@@ -18,9 +25,10 @@ TARGET_NRF_802154_PATH = $(NRF_802154_MODULE_PATH)
 
 OUTPUT_DIRECTORY = $(BUILD_PATH)/nrf52/
 
+
 # INCLUDE_DIRS := $(shell find openthread -type d)
-INCLUDE_DIRS += openthread/include/openthread/
-INCLUDE_DIRS += openthread/include/
+INCLUDE_DIRS += openthread/include/openthread
+INCLUDE_DIRS += openthread/include
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/rsch/raal/softdevice 
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/rsch/raal
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/hal
@@ -29,7 +37,8 @@ INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/nrfx/mdk
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/nrfx
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/dependencies
 INCLUDE_DIRS += openthread/include/openthread
-INCLUDE_DIRS += openthread/include/openthread/platform
+INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/rsch
+INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/softdevice/s140/headers
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/softdevice/s140/headers
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/drivers/radio/mac_features
 INCLUDE_DIRS += $(TARGET_NRF_802154_PATH)/nrf_802154/src
@@ -52,14 +61,32 @@ INCLUDE_DIRS += openthread/src/core
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/cmsis
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/softdevice/s140/headers
 INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/softdevice/s140/headers/nrf52
+INCLUDE_DIRS += openthread/third_party/NordicSemiconductor/nrfx/mdk
+INCLUDE_DIRS += openthread/src
+INCLUDE_DIRS += openthread/src/core/common
+INCLUDE_DIRS += openthread/src/core/utils
+INCLUDE_DIRS += openthread/third_party/mbedtls/repo/include
+INCLUDE_DIRS += openthread/third_party/mbedtls/repo/include/mbedtls
+
 # CFLAGS += -DENABLE_DEBUG_LOG=0 -DENABLE_DEBUG_GPIO=0 -DENABLE_DEBUG_ASSERT=0  
-CFLAGS += -DSTM32_DEVICE -DnRF52840 -DNRF52840_XXAA -DPLATFORM_THREADING=1 -DPLATFORM_ID=14 -DPLATFORM_NAME=xenon -DUSBD_VID_SPARK=0x2B04 -DUSBD_PID_DFU=0xD00E -DUSBD_PID_CDC=0xC00E -g3 -gdwarf-2 -Os -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DSOFTDEVICE_PRESENT=1 -DS140 -DINCLUDE_PLATFORM=1 -DOPENTHREAD_PROJECT_CORE_CONFIG_FILE=\"openthread-config-project.h\" -DENABLE_FEM=1 -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\" -DRAAL_SOFTDEVICE=1 -D_WIZCHIP_=W5500 -fno-builtin -DUSE_STDPERIPH_DRIVER -DDFU_BUILD_ENABLE -DLFS_CONFIG=lfs_config.h -DSYSTEM_VERSION_STRING=0.8.0-rc.27 -DRELEASE_BUILD 
-CFLAGS += -Iopenthread/third_party/NordicSemiconductor/nrfx/mdk/
+CFLAGS += -DSTM32_DEVICE -DnRF52840 -DNRF52840_XXAA -DPLATFORM_THREADING=1 -DPLATFORM_ID=14-DPLATFORM_NAME=xenon -DUSBD_VID_SPARK=0x2B04 -DUSBD_PID_DFU=0xD00E -DUSBD_PID_CDC=0xC00E -g3 -gdwarf-2 -Os -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DSOFTDEVICE_PRESENT=1 -DS140 -DINCLUDE_PLATFORM=1 -DOPENTHREAD_PROJECT_CORE_CONFIG_FILE=\"openthread-config-project.h\" -DENABLE_FEM=1 -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\" -DRAAL_SOFTDEVICE=1 -D_WIZCHIP_=W5500 -fno-builtin -DUSE_STDPERIPH_DRIVER -DDFU_BUILD_ENABLE -DLFS_CONFIG=lfs_config.h -DSYSTEM_VERSION_STRING=0.8.0-rc.27 -DRELEASE_BUILD 
+
 # CFLAGS += -DENABLE_FEM=1 -Werror
 CFLAGS += -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\"
-CFLAGS += -DRAAL_SOFTDEVICE=1
+# CFLAGS += -DRAAL_SOFTDEVICE=1
 CFLAGS += -DNRF52840_AAAA=0 -DNRF52840_AABA=0
 CFLAGS += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
+CFLAGS += $(patsubst %,-I%,$(C_DIRS)) 
+# CFLAGS += -Wundef
+# CFLAGS += -ffunction-sections 
+# CFLAGS += -fdata-sections -Wall -Wno-switch 
+# CFLAGS += -Wno-error=deprecated-declarations 
+# CFLAGS += -fmessage-length=0 -fno-strict-aliasing 
+CFLAGS += --specs=nosys.specs
+CPPFLAGS += $(CFLAGS)
+CFLAGS += -std=gnu99
+CFLAGS += -std=gnu++11 
+
 # ifeq ($(PLATFORM_OPENTHREAD),nrf52840)
 
 SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/nrf_802154_notification_swi.c
@@ -88,12 +115,11 @@ SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drive
 SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/platform/hp_timer/nrf_802154_hp_timer.c
 SRC_FILES += $(TARGET_OPENTHREAD_SRC_PATH)/third_party/NordicSemiconductor/drivers/radio/timer_scheduler/nrf_802154_timer_sched.c
 
+MAIN_SRC = /home/kishan/Softwares/nrf_iot/src/main.cpp
 
 define get_object_file_name
 $(OUTPUT_DIRECTORY)/$(strip $(1))/$(notdir $(2:%.c=%.o))
 endef
-
-VPATH = $(sort $(dir $(SRC_FILES)))
 
 # $1 target name
 # $2 include paths container file
@@ -111,15 +137,33 @@ endef
 # ALLOBJS := $(call get_object_files, nrf52, $(INCLUDE_DIRS), $(SRC_FILES) $(call target_specific, SRC_FILES, $(1))))
 
 ALLOBJS = $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(SRC_FILES:.c=.o)))
+ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(CPP_FILES:.cpp=.cpp.o)))
 
-all:$(ALLOBJS)
-	echo $(OUTPUT_DIRECTORY)
-	@echo done #it has to be here because i dont know makefile sucks
+VPATH = $(sort $(dir $(SRC_FILES)))
+VPATH += $(sort $(dir $(CPP_FILES)))
+all:$(MAIN_SRC)
 
+$(MAIN_SRC):$(STATIC_OPENTHREAD_LIB)
+	$(CXX) $(CFLAGS) -lopenthread -L/home/kishan/Softwares/nrf_iot/build/third_party/ $@
 
+$(STATIC_OPENTHREAD_LIB):$(ALLOBJS)
+	@$(dir_guard)
+	@$(AR) $@ $<
+	@echo "Create: -> "$(notdir $@)
+# -lmbedcrypto -L/home/kishan/Softwares/nrf_iot/third_party/openthread/openthread/build/nrf52840/third_party/mbedtls/
 $(OUTPUT_DIRECTORY)%.o: %.c
-	$(dir_guard)
-	$(CXX) $(CFLAGS) -c $< -o $@
+	@$(dir_guard)
+	@$(CC) $(CFLAGS) -std=gnu99 -c $< -o $@
+	@echo "Compiling: $(notdir $<)"
+
+
+$(OUTPUT_DIRECTORY)%.cpp.o: %.cpp
+	@$(dir_guard)
+	$(CC) $(CPPFLAGS) -c $< -o $@
+	@echo "Compiling: $(notdir $<)"
 
 clean:
-	rm -rf $(OUTPUT_DIRECTORY)
+	@rm -rf $(OUTPUT_DIRECTORY)
+	@echo "CLEAN"
+test:
+	$(info $(CPPFLAGS))
