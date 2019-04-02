@@ -1,31 +1,31 @@
 SHELL = /bin/sh
 CC=arm-none-eabi-gcc
 CXX = arm-none-eabi-g++
-BUILD_PATH = ../../build
+BUILD_PATH = ./build
 dir_guard=mkdir -p $(@D)
 STATIC_OPENTHREAD_LIB = $(BUILD_PATH)/third_party/libopenthread.a
 AR = arm-none-eabi-gcc-ar -cr 
 SIZE = arm-none-eabi-size
 OBJCOPY = arm-none-eabi-objcopy
 
-KEY_FILE = ../../keys/private.key
+KEY_FILE = $(PROJ_DIR)/keys/private.key
 FIRMWARE_ZIP = $(BUILD_PATH)/app_dfu_package.zip
 SOFT_ID = 0xAE
-
+PROJ_DIR = $(shell pwd)
 VERBOSE ?= 0
 PRETTY  ?= 0
 ABSOLUTE_PATHS ?= 0
 PASS_INCLUDE_PATHS_VIA_FILE ?= 0
 PASS_LINKER_INPUT_VIA_FILE  ?= 1
 
-include app.mk
-# include ready.mk
-include blinky.mk
-include usb.mk
+include ./templates/app.mk
+# include openthread.mk
+include ./templates/blinky.mk
+# include usb.mk
+include ./templates/usb_ble.mk
 # OPENTHREAD_MODULE_PATH=.
 # TARGET_OPENTHREAD_SRC_PATH = $(OPENTHREAD_MODULE_PATH)/openthread
-TARGET_OPENTHREAD_SRC_PATH = openthread
-
+TARGET_OPENTHREAD_SRC_PATH = third_party/openthread/
 # CPPSRC += $(call target_files,$(TARGET_OPENTHREAD_SRC_PATH)/src/core/,*.cpp)
 
 
@@ -52,15 +52,15 @@ CFLAGS += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
 # CFLAGS += -std=gnu++11 
 
 check_defined = \
-    $(strip $(foreach 1,$1, \
-        $(call __check_defined,$1,$(strip $(value 2)),$(3))))
+	$(strip $(foreach 1,$1, \
+		$(call __check_defined,$1,$(strip $(value 2)),$(3))))
 __check_defined = \
-    $(if $(value $1),, \
-      $(error $(3) $1$(if $2, ($2))))
+	$(if $(value $1),, \
+	  $(error $(3) $1$(if $2, ($2))))
 
 define dump
 $(eval CONTENT_TO_DUMP := $(1)) \
-"$(MAKE)" -s -f "dump.mk" VARIABLE=CONTENT_TO_DUMP
+"$(MAKE)" -s -f "$(PROJ_DIR)/templates/dump.mk" VARIABLE=CONTENT_TO_DUMP
 endef
 export CONTENT_TO_DUMP
 
@@ -120,7 +120,7 @@ all:$(MAIN_SRC)
 	@$(info $(call PROGRESS,Linking target: $@))
 	@$(GENERATE_LD_INPUT_FILE)
 	@$(info $(@:.out=.map))
-	$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.out=.map) -o $@
+	@$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.out=.map) -o $@
 	@$(SIZE) $@
 
 %.bin: %.out
@@ -140,6 +140,7 @@ $(STATIC_OPENTHREAD_LIB):$(ALLOBJS)
 # 	@$(AR) $@ $<
 # 	@echo "Create: -> " $@
 # -lmbedcrypto -L/home/kishan/Softwares/nrf_iot/third_party/openthread/openthread/build/nrf52840/third_party/mbedtls/
+
 $(OUTPUT_DIRECTORY)%.c.o: %.c
 	@$(dir_guard)
 	@$(CC) $(CFLAGS) -MP -MD -std=gnu99 -c $< -o $@
@@ -170,7 +171,7 @@ flash:all
 	@echo "Uploading.. $(PORT)"
 	@nrfutil dfu usb-serial -pkg $(FIRMWARE_ZIP) -p $(PORT)
 flash_app:
-	$(call check_defined, PORT,,Please sepeicify APP value APP=../../Firmware.hex)
+	$(call check_defined, PORT,,Please sepeicify APP value APP=$(PROJ_DIR)/build/bins/Firmware.hex)
 	$(call check_defined, PORT,,Please sepeicify PORT value PORT=/dev/ttyACM0)
 	@echo "Encrypting Firmware"
 	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(APP)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)

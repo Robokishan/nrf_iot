@@ -113,6 +113,3 @@ INCLUDE_DIRS += \
   $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/components/libraries/log/src \
-
-CFLAGS += -DCONFIG_GPIO_AS_PINRESET
-ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET

@@ -1,7 +1,7 @@
 # LINKER_SCRIPT = openthread_nrf52840.ld
-LINKER_SCRIPT = blinky_gcc_nrf52.ld
-SDK_ROOT = /home/oizom-dev/Documents/Sample/third_party/nRF5Thread
-S_FILES = $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S 
+# LINKER_SCRIPT = blinky_gcc_nrf52.ld
+# SDK_ROOT = /home/oizom-dev/Documents/Sample/third_party/nRF5Thread
+# S_FILES = $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S 
 SRC_FILES += \
   $(SDK_ROOT)/components/boards/boards.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
@@ -49,14 +49,13 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/external/utf_converter/utf.c \
   $(SDK_ROOT)/components/thread/utils/thread_utils.c \
-  /home/oizom-dev/Documents/Sample/src/main.c
+  $(PROJ_DIR)/src/main.c
 
 # CPP_FILES += ../../src/main.cpp 
 # Include folders common to all targets
 INCLUDE_DIRS += \
   $(SDK_ROOT)/components/drivers_nrf/usbd \
   $(SDK_ROOT)/external/fprintf \
-  $(PROJ_DIR) \
   $(SDK_ROOT)/components/thread/utils \
   $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \

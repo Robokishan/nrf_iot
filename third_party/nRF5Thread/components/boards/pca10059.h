@@ -84,7 +84,7 @@ extern "C" {
 
 #define BSP_BUTTON_0   BUTTON_1
 
-#define BSP_SELF_PINRESET_PIN NRF_GPIO_PIN_MAP(0,19)
+#define BSP_SELF_PINRESET_PIN NRF_GPIO_PIN_MAP(0,20)
 
 #define HWFC           true
 

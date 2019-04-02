@@ -46,6 +46,51 @@
 #ifdef USE_APP_CONFIG
 #include "app_config.h"
 #endif
+// <h> Board Support 
+
+//==========================================================
+// <q> BSP_BTN_BLE_ENABLED  - bsp_btn_ble - Button Control for BLE
+ 
+
+#ifndef BSP_BTN_BLE_ENABLED
+#define BSP_BTN_BLE_ENABLED 1
+#endif
+
+#ifndef APP_NAME
+#define APP_NAME "rssi_cdc_acm"
+#endif
+
+#ifndef APP_VERSION_MINOR
+#define APP_VERSION_MINOR 0
+#endif
+
+#ifndef APP_VERSION_MAJOR
+#define APP_VERSION_MAJOR 2
+#endif
+// <o> APP_ID - Application ID
+#ifndef APP_ID
+#define APP_ID 0
+#endif
+
+#ifndef APP_VERSION_METADATA
+#define APP_VERSION_METADATA "+dfu" __DATE__ " " __TIME__
+#endif
+
+#ifndef APP_VERSION_PATCH
+#define APP_VERSION_PATCH 0
+#endif
+
+// <s> APP_VERSION_PRERELEASE - Prerelease, eg. "-1.alpha"
+
+// <i> If not empty, this string should include the leading hyphen (-).
+// <i> This string might be normalized at run-time to not contain characters
+// <i> illegal in Semantic Versioning.
+#ifndef APP_VERSION_PRERELEASE
+#define APP_VERSION_PRERELEASE ""
+#endif
+// </h> 
+//==========================================================
+
 // <h> nRF_BLE 
 
 //==========================================================
@@ -53,7 +98,7 @@
  
 
 #ifndef BLE_ADVERTISING_ENABLED
-#define BLE_ADVERTISING_ENABLED 0
+#define BLE_ADVERTISING_ENABLED 1
 #endif
 
 // <q> BLE_DTM_ENABLED  - ble_dtm - Module for testing RF/PHY using DTM commands
@@ -101,7 +146,7 @@
 // <e> NRF_BLE_QWR_ENABLED - nrf_ble_qwr - Queued writes support module (prepare/execute write)
 //==========================================================
 #ifndef NRF_BLE_QWR_ENABLED
-#define NRF_BLE_QWR_ENABLED 1
+#define NRF_BLE_QWR_ENABLED 0
 #endif
 // <o> NRF_BLE_QWR_MAX_ATTR - Maximum number of attribute handles that can be registered. This number must be adjusted according to the number of attributes for which Queued Writes will be enabled. If it is zero, the module will reject all Queued Write requests. 
 #ifndef NRF_BLE_QWR_MAX_ATTR
@@ -419,7 +464,7 @@
  
 
 #ifndef BLE_LBS_ENABLED
-#define BLE_LBS_ENABLED 1
+#define BLE_LBS_ENABLED 0
 #endif
 
 // <q> BLE_LLS_ENABLED  - ble_lls - Link Loss Service
@@ -439,7 +484,7 @@
 // <e> BLE_NUS_ENABLED - ble_nus - Nordic UART Service
 //==========================================================
 #ifndef BLE_NUS_ENABLED
-#define BLE_NUS_ENABLED 0
+#define BLE_NUS_ENABLED 1
 #endif
 // <e> BLE_NUS_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
@@ -456,6 +501,14 @@
 
 #ifndef BLE_NUS_CONFIG_LOG_LEVEL
 #define BLE_NUS_CONFIG_LOG_LEVEL 3
+#endif
+
+#ifndef NRF_DFU_TRIGGER_USB_USB_SHARED
+#define NRF_DFU_TRIGGER_USB_USB_SHARED 0
+#endif
+
+#ifndef NRF_DFU_TRIGGER_USB_INTERFACE_NUM
+#define NRF_DFU_TRIGGER_USB_INTERFACE_NUM 1
 #endif
 
 // <o> BLE_NUS_CONFIG_INFO_COLOR  - ANSI escape code prefix.
@@ -2384,7 +2437,7 @@
 // <e> NRFX_POWER_ENABLED - nrfx_power - POWER peripheral driver
 //==========================================================
 #ifndef NRFX_POWER_ENABLED
-#define NRFX_POWER_ENABLED 0
+#define NRFX_POWER_ENABLED 1
 #endif
 // <o> NRFX_POWER_CONFIG_IRQ_PRIORITY  - Interrupt priority
  
@@ -4684,7 +4737,7 @@
 // <e> POWER_ENABLED - nrf_drv_power - POWER peripheral driver - legacy layer
 //==========================================================
 #ifndef POWER_ENABLED
-#define POWER_ENABLED 0
+#define POWER_ENABLED 1
 #endif
 // <o> POWER_CONFIG_IRQ_PRIORITY  - Interrupt priority
  
@@ -5766,7 +5819,7 @@
 // <e> USBD_ENABLED - nrf_drv_usbd - USB driver
 //==========================================================
 #ifndef USBD_ENABLED
-#define USBD_ENABLED 0
+#define USBD_ENABLED 1
 #endif
 // <o> USBD_CONFIG_IRQ_PRIORITY  - Interrupt priority
  
@@ -5880,6 +5933,13 @@
 // <h> nRF_Libraries 
 
 //==========================================================
+// <q> APP_FIFO_ENABLED  - app_fifo - Software FIFO implementation
+ 
+
+#ifndef APP_FIFO_ENABLED
+#define APP_FIFO_ENABLED 1
+#endif
+
 // <q> APP_GPIOTE_ENABLED  - app_gpiote - GPIOTE events dispatcher
  
 
@@ -6055,6 +6115,21 @@
 
 // </e>
 
+// <e> APP_UART_ENABLED - app_uart - UART driver
+//==========================================================
+#ifndef APP_UART_ENABLED
+#define APP_UART_ENABLED 1
+#endif
+// <o> APP_UART_DRIVER_INSTANCE  - UART instance used
+ 
+// <0=> 0 
+
+#ifndef APP_UART_DRIVER_INSTANCE
+#define APP_UART_DRIVER_INSTANCE 0
+#endif
+
+// </e>
+
 // <q> APP_USBD_AUDIO_ENABLED  - app_usbd_audio - USB AUDIO class
  
 
@@ -6065,26 +6140,24 @@
 // <e> APP_USBD_ENABLED - app_usbd - USB Device library
 //==========================================================
 #ifndef APP_USBD_ENABLED
-#define APP_USBD_ENABLED 0
+#define APP_USBD_ENABLED 1
 #endif
-// <o> APP_USBD_VID - Vendor ID.  <0x0000-0xFFFF> 
-
+// <s> APP_USBD_VID - Vendor ID.
 
 // <i> Note: This value is not editable in Configuration Wizard.
 // <i> Vendor ID ordered from USB IF: http://www.usb.org/developers/vendor/
-
 #ifndef APP_USBD_VID
-#define APP_USBD_VID 0
+#define APP_USBD_VID 0x1915
+// #define APP_USBD_VID 0x05ac
 #endif
 
-// <o> APP_USBD_PID - Product ID.  <0x0000-0xFFFF> 
-
+// <s> APP_USBD_PID - Product ID.
 
 // <i> Note: This value is not editable in Configuration Wizard.
 // <i> Selected Product ID
-
 #ifndef APP_USBD_PID
-#define APP_USBD_PID 0
+#define APP_USBD_PID 0x521A
+// #define APP_USBD_PID 0x0269
 #endif
 
 // <o> APP_USBD_DEVICE_VER_MAJOR - Device version, major part.  <0-99> 
@@ -6096,6 +6169,9 @@
 #define APP_USBD_DEVICE_VER_MAJOR 1
 #endif
 
+#ifndef APP_USBD_NRF_DFU_TRIGGER_ENABLED
+#define APP_USBD_NRF_DFU_TRIGGER_ENABLED 1
+#endif
 // <o> APP_USBD_DEVICE_VER_MINOR - Device version, minor part.  <0-99> 
 
 
@@ -6229,7 +6305,7 @@
 // <i> Setting string to NULL disables that string.
 // <i> The order of manufacturer names must be the same like in @ref APP_USBD_STRINGS_LANGIDS.
 #ifndef APP_USBD_STRINGS_MANUFACTURER
-#define APP_USBD_STRINGS_MANUFACTURER APP_USBD_STRING_DESC("Nordic Semiconductor")
+#define APP_USBD_STRINGS_MANUFACTURER APP_USBD_STRING_DESC("Oizom Semiconductor")
 #endif
 
 // </e>
@@ -6253,7 +6329,7 @@
 // <i> Note: This value is not editable in Configuration Wizard.
 // <i> List of product names that is defined the same way like in @ref APP_USBD_STRINGS_MANUFACTURER.
 #ifndef APP_USBD_STRINGS_PRODUCT
-#define APP_USBD_STRINGS_PRODUCT APP_USBD_STRING_DESC("nRF52 USB Product")
+#define APP_USBD_STRINGS_PRODUCT APP_USBD_STRING_DESC("nRF52 USB CDC BLE Demo")
 #endif
 
 // </e>
@@ -6269,7 +6345,7 @@
  
 
 #ifndef APP_USBD_STRING_SERIAL_EXTERN
-#define APP_USBD_STRING_SERIAL_EXTERN 0
+#define APP_USBD_STRING_SERIAL_EXTERN 1
 #endif
 
 // <s> APP_USBD_STRING_SERIAL - String descriptor for the serial number.
@@ -6277,7 +6353,7 @@
 // <i> Note: This value is not editable in Configuration Wizard.
 // <i> Serial number that is defined the same way like in @ref APP_USBD_STRINGS_MANUFACTURER.
 #ifndef APP_USBD_STRING_SERIAL
-#define APP_USBD_STRING_SERIAL APP_USBD_STRING_DESC("000000000000")
+#define APP_USBD_STRING_SERIAL g_extern_serial_number
 #endif
 
 // </e>
@@ -6522,7 +6598,7 @@
  
 
 #ifndef HARDFAULT_HANDLER_ENABLED
-#define HARDFAULT_HANDLER_ENABLED 0
+#define HARDFAULT_HANDLER_ENABLED 1
 #endif
 
 // <e> HCI_MEM_POOL_ENABLED - hci_mem_pool - memory pool implementation used by HCI
@@ -7175,6 +7251,13 @@
 #define NRF_TWI_MNGR_ENABLED 0
 #endif
 
+// <q> RETARGET_ENABLED  - retarget - Retargeting stdio functions
+ 
+
+#ifndef RETARGET_ENABLED
+#define RETARGET_ENABLED 1
+#endif
+
 // <q> SLIP_ENABLED  - slip - SLIP encoding and decoding
  
 
@@ -7253,7 +7336,7 @@
  
 
 #ifndef APP_USBD_CDC_ACM_ENABLED
-#define APP_USBD_CDC_ACM_ENABLED 0
+#define APP_USBD_CDC_ACM_ENABLED 1
 #endif
 
 // <q> APP_USBD_CDC_ACM_ZLP_ON_EPSIZE_WRITE  - Send ZLP on write with same size as endpoint
@@ -9117,7 +9200,7 @@
 // <e> APP_USBD_NRF_DFU_TRIGGER_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
 #ifndef APP_USBD_NRF_DFU_TRIGGER_CONFIG_LOG_ENABLED
-#define APP_USBD_NRF_DFU_TRIGGER_CONFIG_LOG_ENABLED 0
+#define APP_USBD_NRF_DFU_TRIGGER_CONFIG_LOG_ENABLED 1
 #endif
 // <o> APP_USBD_NRF_DFU_TRIGGER_CONFIG_LOG_LEVEL  - Default Severity level
  
@@ -12407,7 +12490,7 @@
 
 // <o> NRF_SDH_BLE_GATT_MAX_MTU_SIZE - Static maximum MTU size. 
 #ifndef NRF_SDH_BLE_GATT_MAX_MTU_SIZE
-#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE 23
+#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE 247
 #endif
 
 // <o> NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE - Attribute Table size in bytes. The size must be a multiple of 4. 
@@ -12417,7 +12500,7 @@
 
 // <o> NRF_SDH_BLE_VS_UUID_COUNT - The number of vendor-specific UUIDs. 
 #ifndef NRF_SDH_BLE_VS_UUID_COUNT
-#define NRF_SDH_BLE_VS_UUID_COUNT 10
+#define NRF_SDH_BLE_VS_UUID_COUNT 1
 #endif
 
 // <q> NRF_SDH_BLE_SERVICE_CHANGED  - Include the Service Changed characteristic in the Attribute Table.
