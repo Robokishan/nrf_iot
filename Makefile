@@ -23,6 +23,8 @@ include ./templates/app.mk
 include ./templates/blinky.mk
 # include usb.mk
 include ./templates/usb_ble.mk
+include ./templates/dfu.mk
+# include ./templates/freertos.mk
 # OPENTHREAD_MODULE_PATH=.
 # TARGET_OPENTHREAD_SRC_PATH = $(OPENTHREAD_MODULE_PATH)/openthread
 TARGET_OPENTHREAD_SRC_PATH = third_party/openthread/
@@ -179,4 +181,5 @@ flash_app:
 	@nrfutil dfu usb-serial -pkg $(FIRMWARE_ZIP) -p $(PORT)
 zip:
 	@echo "Encrypting Firmware"
-	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(APP)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)
+	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(APP)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)test:
+	$(info $(ALLOBJS))
