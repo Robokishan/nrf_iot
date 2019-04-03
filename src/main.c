@@ -87,6 +87,12 @@
 #include "app_usbd_nrf_dfu_trigger.h"
 #include "nrf_dfu_trigger_usb.h"
 
+#define DFU_MAGIC_SERIAL_ONLY_RESET   0x4e
+#define DFU_MAGIC_UF2_RESET           0x57
+#define DFU_MAGIC_OTA_RESET           0xA8
+
+#define START_DFU_FLASHER_SERIAL_SPEED 14400
+static uint32_t start_dfu_flasher_serial_speed = START_DFU_FLASHER_SERIAL_SPEED;
 
 #define LED_BLE_NUS_CONN (BSP_BOARD_LED_0)
 #define LED_BLE_NUS_RX   (BSP_BOARD_LED_1)
@@ -822,6 +828,18 @@ static void usbd_user_ev_handler(app_usbd_event_type_t event)
     }
 }
 
+
+uint32_t usb_uart_get_baudrate(void) {
+    app_usbd_class_inst_t const * cdc_inst_class = app_usbd_cdc_acm_class_inst_get(&m_app_cdc_acm);
+    app_usbd_cdc_acm_t const *cdc_acm_class= app_usbd_cdc_acm_class_get(cdc_inst_class);
+
+    if ((cdc_acm_class != NULL) && (cdc_acm_class->specific.p_data != NULL)) {
+        return uint32_decode(cdc_acm_class->specific.p_data->ctx.line_coding.dwDTERate);
+    }
+
+    return 0;
+}
+
 // USB CODE END
 
 /** @brief Application main function. */
@@ -868,6 +886,17 @@ int main(void)
     // Enter main loop.
     for (;;)
     {
+        uint32_t val = usb_uart_get_baudrate();
+        if(val == start_dfu_flasher_serial_speed )
+        {
+            NRF_LOG_INFO("po dfu triggered : %d",val);
+            NRF_POWER->GPREGRET = DFU_MAGIC_SERIAL_ONLY_RESET;
+            NVIC_SystemReset();
+        }
+        else
+        {
+            NRF_LOG_INFO("normal : %d",val);
+        }
         while (app_usbd_event_queue_process())
         {
             /* Nothing to do */

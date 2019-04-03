@@ -23,7 +23,6 @@ include ./templates/app.mk
 include ./templates/blinky.mk
 # include usb.mk
 include ./templates/usb_ble.mk
-include ./templates/dfu.mk
 # include ./templates/freertos.mk
 # OPENTHREAD_MODULE_PATH=.
 # TARGET_OPENTHREAD_SRC_PATH = $(OPENTHREAD_MODULE_PATH)/openthread
@@ -187,6 +186,7 @@ ada_flash:all
 	@echo "Encrypting Firmware"
 	adafruit-nrfutil dfu genpkg --dev-type 0x0052 --application $(MAIN_SRC)  $(FIRMWARE_ZIP)
 	@echo "Uploading.. $(PORT)"
-	custom-baud $(PORT) 1200
+	# custom-baud $(PORT) 14400
+	po dfu open
 	sleep 2
 	@adafruit-nrfutil --verbose dfu serial --package $(FIRMWARE_ZIP) -p $(PORT)  -b 115200 --singlebank
