@@ -181,5 +181,12 @@ flash_app:
 	@nrfutil dfu usb-serial -pkg $(FIRMWARE_ZIP) -p $(PORT)
 zip:
 	@echo "Encrypting Firmware"
-	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(APP)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)test:
-	$(info $(ALLOBJS))
+	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(APP)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)
+ada_flash:all
+	$(call check_defined, PORT,,Please sepeicify PORT value PORT=/dev/ttyACM0)
+	@echo "Encrypting Firmware"
+	adafruit-nrfutil dfu genpkg --dev-type 0x0052 --application $(MAIN_SRC)  $(FIRMWARE_ZIP)
+	@echo "Uploading.. $(PORT)"
+	custom-baud $(PORT) 1200
+	sleep 2
+	@adafruit-nrfutil --verbose dfu serial --package $(FIRMWARE_ZIP) -p $(PORT)  -b 115200 --singlebank
