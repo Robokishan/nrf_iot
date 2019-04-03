@@ -177,3 +177,6 @@ flash_app:
 	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(APP)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)
 	@echo "Uploading.. $(PORT)"
 	@nrfutil dfu usb-serial -pkg $(FIRMWARE_ZIP) -p $(PORT)
+zip:
+	@echo "Encrypting Firmware"
+	@nrfutil pkg generate --hw-version $(HW_VERSION) --application-version $(APP_VERSION) --application $(APP)  --sd-req $(SOFT_ID) --key-file $(KEY_FILE) $(FIRMWARE_ZIP)
