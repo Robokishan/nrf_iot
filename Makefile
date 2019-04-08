@@ -66,6 +66,7 @@ endef
 export CONTENT_TO_DUMP
 
 MAIN_SRC = $(BUILD_PATH)/bins/Firmware.hex
+MAIN_BIN = $(BUILD_PATH)/bins/Firmware.bin
 SDK_CONFIG_FILE := ../../config/sdk_config.h
 CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
 
@@ -79,8 +80,8 @@ VPATH = $(sort $(dir $(SRC_FILES)))
 # VPATH += $(sort $(dir $(CPP_FILES)))
 
 ifeq ($(PASS_LINKER_INPUT_VIA_FILE),1)
-GENERATE_LD_INPUT_FILE = $(call dump, $^ $(LIB_FILES)) > $(@:.out=.in)
-LD_INPUT               = @$(@:.out=.in)
+GENERATE_LD_INPUT_FILE = $(call dump, $^ $(LIB_FILES)) > $(@:.elf=.in)
+LD_INPUT               = @$(@:.elf=.in)
 else
 GENERATE_LD_INPUT_FILE =
 LD_INPUT               = $^ $(LIB_FILES)
@@ -116,27 +117,33 @@ all:$(MAIN_SRC)
 	@$(dir_guard)
 	@echo "Create: -> " $<
 
-%.out:$(ALLOBJS)
+%.elf:$(ALLOBJS)
 	@$(dir_guard)
 	@$(info $(call PROGRESS,Linking target: $@))
 	@$(GENERATE_LD_INPUT_FILE)
-	@$(info $(@:.out=.map))
-	@$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.out=.map) -o $@
+	@$(info $(@:.elf=.map))
+	@$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.elf=.map) -o $@
 	@$(SIZE) $@
 
-%.bin: %.out
+
+%.bin: %.elf
 	@$(dir_guard)
 	$(info Preparing: $@)
 	$(OBJCOPY) -O binary $< $@
 
-# Create binary .hex file from the .out file
-%.hex: %.out %.bin
+# Create binary .hex file from the .elf file
+%.hex: %.elf
 	@$(dir_guard)
 	$(info Preparing: $@)
-	$(OBJCOPY) -O ihex $< $@
+	@$(OBJCOPY) -O ihex $< $@
+	@$(dir_guard)
+	$(info Preparing: $(MAIN_BIN))
+	@$(OBJCOPY) -O binary $< $(MAIN_BIN)
+
+
 
 $(STATIC_OPENTHREAD_LIB):$(ALLOBJS)
-	$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.out=.map) -o $@
+	$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.elf=.map) -o $@
 # 	@$(dir_guard)
 # 	@$(AR) $@ $<
 # 	@echo "Create: -> " $@
