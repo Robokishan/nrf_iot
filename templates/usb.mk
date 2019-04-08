@@ -1,13 +1,3 @@
-# PROJECT_NAME     := usbd_pca10056
-# TARGETS          := nrf52840_xxaa
-# OUTPUT_DIRECTORY := _build
-
-# SDK_ROOT := ../../../../../..
-# PROJ_DIR := ../../..
-
-# $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
-#   LINKER_SCRIPT  := usbd_gcc_nrf52.ld
-
 # Source files common to all targets
 SRC_FILES += \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
@@ -70,7 +60,7 @@ SRC_FILES += \
   $(SDK_ROOT)/external/utf_converter/utf.c \
 
 # Include folders common to all targets
-INCLUDE_DIRS += \
+INC_FOLDERS += \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/components/libraries/cli \
   $(SDK_ROOT)/modules/nrfx/mdk \
@@ -102,7 +92,6 @@ INCLUDE_DIRS += \
   $(SDK_ROOT)/components/libraries/delay \
   $(SDK_ROOT)/external/segger_rtt \
   $(SDK_ROOT)/components/libraries/atomic_fifo \
-  $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
   $(SDK_ROOT)/components/libraries/atomic \
   $(SDK_ROOT)/components/boards \
   $(SDK_ROOT)/components/libraries/memobj \

@@ -18,11 +18,15 @@ ABSOLUTE_PATHS ?= 0
 PASS_INCLUDE_PATHS_VIA_FILE ?= 0
 PASS_LINKER_INPUT_VIA_FILE  ?= 1
 
+.PRECIOUS: %.c.o %.S.o %.bin %.hex %.out
+
 include ./templates/app.mk
 # include openthread.mk
 include ./templates/blinky.mk
 # include usb.mk
-include ./templates/usb_ble.mk
+include ./templates/openthread.mk
+# include ./templates/usb_ble.mk
+include ./templates/usb.mk
 # include ./templates/freertos.mk
 # OPENTHREAD_MODULE_PATH=.
 # TARGET_OPENTHREAD_SRC_PATH = $(OPENTHREAD_MODULE_PATH)/openthread
@@ -40,7 +44,7 @@ OUTPUT_DIRECTORY = $(BUILD_PATH)/nrf52/
 # CFLAGS += -DNRF_802154_PROJECT_CONFIG=\"openthread-platform-config.h\"
 # # CFLAGS += -DRAAL_SOFTDEVICE=1
 # CFLAGS += -DNRF52840_AAAA=0 -DNRF52840_AABA=0
-CFLAGS += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
+CFLAGS += $(patsubst %,-I%,$(INC_FOLDERS)) -I.
 # CFLAGS += $(patsubst %,-I%,$(C_DIRS)) 
 # # CFLAGS += -Wundef
 # CFLAGS += -ffunction-sections 
@@ -69,7 +73,7 @@ MAIN_SRC = $(BUILD_PATH)/bins/Firmware.hex
 SDK_CONFIG_FILE := ../../config/sdk_config.h
 CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
 
-# ALLOBJS := $(call get_object_files, nrf52, $(INCLUDE_DIRS), $(SRC_FILES) $(call target_specific, SRC_FILES, $(1))))
+# ALLOBJS := $(call get_object_files, nrf52, $(INC_FOLDERS), $(SRC_FILES) $(call target_specific, SRC_FILES, $(1))))
 ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(S_FILES:.S=.S.o)))
 # ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(CPP_FILES:.cpp=.cpp.o)))
 ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(SRC_FILES:.c=.c.o)))
