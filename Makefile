@@ -67,7 +67,7 @@ export CONTENT_TO_DUMP
 
 MAIN_SRC = $(BUILD_PATH)/bins/Firmware.hex
 MAIN_BIN = $(BUILD_PATH)/bins/Firmware.bin
-SDK_CONFIG_FILE := ../../config/sdk_config.h
+SDK_CONFIG_FILE := ./config/sdk_config.h
 CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
 
 # ALLOBJS := $(call get_object_files, nrf52, $(INCLUDE_DIRS), $(SRC_FILES) $(call target_specific, SRC_FILES, $(1))))
