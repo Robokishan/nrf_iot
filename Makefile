@@ -18,9 +18,12 @@ ABSOLUTE_PATHS ?= 0
 PASS_INCLUDE_PATHS_VIA_FILE ?= 0
 PASS_LINKER_INPUT_VIA_FILE  ?= 1
 
+
 include ./templates/app.mk
 # include openthread.mk
 include ./templates/blinky.mk
+# include ./templates/spi.mk
+# include ./templates/twi.mk
 # include usb.mk
 include ./templates/usb_ble.mk
 # include ./templates/freertos.mk
@@ -78,6 +81,24 @@ ALLOBJS += $(addprefix $(OUTPUT_DIRECTORY), $(notdir $(SRC_FILES:.c=.c.o)))
 
 VPATH = $(sort $(dir $(SRC_FILES)))
 # VPATH += $(sort $(dir $(CPP_FILES)))
+
+
+$(eval uniq_objs :=)
+$(foreach _,$(ALLOBJS),$(if $(filter $_,${uniq_objs}),,$(eval uniq_objs += $_)))
+
+file_counter = 1
+ifndef ECHO
+T := $(shell $(MAKE) $(MAKECMDGOALS) --no-print-directory \
+      -nrRf $(firstword $(MAKEFILE_LIST)) \
+      ECHO="COUNTTHIS" | grep -c "COUNTTHIS")
+N := x
+C = $(words $(uniq_objs))$(eval N := x $(N))
+
+ECHO = python echo_process.py --stepno=$(file_counter) --nsteps=$(C) \
+	   $(eval file_counter=$(shell echo $$(($(file_counter)+1))))
+
+endif
+
 
 ifeq ($(PASS_LINKER_INPUT_VIA_FILE),1)
 GENERATE_LD_INPUT_FILE = $(call dump, $^ $(LIB_FILES)) > $(@:.elf=.in)
@@ -140,8 +161,6 @@ all:$(MAIN_SRC)
 	$(info Preparing: $(MAIN_BIN))
 	@$(OBJCOPY) -O binary $< $(MAIN_BIN)
 
-
-
 $(STATIC_OPENTHREAD_LIB):$(ALLOBJS)
 	$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.elf=.map) -o $@
 # 	@$(dir_guard)
@@ -151,19 +170,21 @@ $(STATIC_OPENTHREAD_LIB):$(ALLOBJS)
 
 $(OUTPUT_DIRECTORY)%.c.o: %.c
 	@$(dir_guard)
+	@$(ECHO) Compiling $@
 	@$(CC) $(CFLAGS) -MP -MD -std=gnu99 -c $< -o $@
-	@echo "Compiling: $(notdir $<)"
+	@#@echo "Compiling: $(notdir $<)"
 
 
 $(OUTPUT_DIRECTORY)%.cpp.o: %.cpp
 	@$(dir_guard)
 	@$(CXX) $(CXXFLAGS) -MP -MD $(CFLAGS) -std=gnu++14  -c $< -o $@
-	@echo "Compiling: $(notdir $<)"
+	@#echo "Compiling: $(notdir $<)"
 
 $(OUTPUT_DIRECTORY)%.S.o: %.S
 	@$(dir_guard)
+	@$(ECHO) Assembling: $@
 	@$(CC) $(ASMFLAGS) -MP -MD -x assembler-with-cpp -std=gnu++14  -c $< -o $@
-	@echo "Assembling: $(notdir $<)"
+	@# @echo "Assembling: $(notdir $<)"
 
 clean:
 	@rm -rf $(BUILD_PATH)
