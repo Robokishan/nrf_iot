@@ -1,3 +1,6 @@
 [submodule "third_party/openthread/openthread"]
 	path = third_party/openthread/openthread
 	url = https://github.com/openthread/openthread.git
+[submodule "custom-baud"]
+	path = custom-baud
+	url = https://github.com/Robokishan/custom-baud.git

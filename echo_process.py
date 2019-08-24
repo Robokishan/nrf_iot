@@ -37,10 +37,11 @@ def main():
   sys.stdout.write(fmt_str.format(args.stepno, args.nsteps, progress))
   sys.stdout.write(get_progress_bar(20, percent=progress))
   remainder_str = " ".join(args.remainder)
-  sys.stdout.write(remainder_str)
+  sys.stdout.write(" : "+remainder_str)
   sys.stdout.write("\033[K") # Clear to the end of line
   if args.stepno == args.nsteps:
-    sys.stdout.write("\n\n")
+    pass
+    # sys.stdout.write("\n")
 
 if __name__ == "__main__":
   main()

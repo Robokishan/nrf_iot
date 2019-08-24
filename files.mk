@@ -1,0 +1,9 @@
+# FILE_PATHS #
+KEY_FILE = $(PROJ_DIR)/keys/private.key
+FIRMWARE_ZIP = $(BUILD_PATH)/app_dfu_package.zip
+OUTPUT_DIRECTORY = $(BUILD_PATH)/nrf52/
+MAIN_SRC = $(BUILD_PATH)/bins/Firmware.hex
+MAIN_BIN = $(BUILD_PATH)/bins/Firmware.bin
+SDK_CONFIG_FILE := ./config/sdk_config.h
+CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
+ENABLE_DFU = $(PROJ_DIR)/custom-baud/custom-baud
