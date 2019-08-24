@@ -4,11 +4,23 @@
 
 ![](https://github.com/openthread/openthread)
 
-it is based on nrf52840 thread device and [openthread](https://github.com/openthread/openthread) library is used.
+It is based on nrf52840 thread device and [openthread](https://github.com/openthread/openthread) library is used.
 
-Project structure
+# Project structure
   - include (user application libraries)
   - lib     (system libraries)
   - src     (main source)
   - third_party -> source1 -> source_code (thirdparty libraries)
                 -> source2 -> source_code
+                
+
+# 1.Install adafruit-nrfutil from pip
+`$ pip3 install --user adafruit-nrfutil`
+# 2.Install nrfutil
+`pip install nrfutil`
+# 3.Update submodules
+`git submodule update --init --recursive`
+# 4.Make submodule
+`cd custom-baud ; make`
+# 5.Make
+`make clean ; make all`
